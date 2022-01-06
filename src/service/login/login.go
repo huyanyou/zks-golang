@@ -1,11 +1,11 @@
 package login
 
 import (
+	c "HeDa/src/client"
+	s "HeDa/src/service/skeleton"
 	"encoding/json"
 	"fmt"
 	"net/http"
-
-	s "HeDa/src/service/skeleton"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -23,6 +23,9 @@ func Login(rs http.ResponseWriter, rq *http.Request, p httprouter.Params) {
 		s.Res(rs, nil, false)
 		return
 	}
+	var MyClient c.MyClient
+	//	登陆
+	MyClient.Login(user.Username, user.Password)
 	s.Res(rs, user, true)
 }
 

@@ -1,6 +1,8 @@
 package client
 
-import "net/http"
+import (
+	"net/http"
+)
 
 //	设置请求头
 func SetHeaders(req *http.Request, headers map[string]string) *http.Request {
