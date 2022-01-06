@@ -11,7 +11,8 @@ import (
 
 func main() {
 	r := httprouter.New()
-	r.POST("/", l.Login)
+	r.GET("/login", l.Login)
+	r.POST("/logon", l.Logon)
 	h := &http.Server{
 		Addr:           ":9090",
 		Handler:        r,

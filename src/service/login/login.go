@@ -4,7 +4,6 @@ import (
 	c "HeDa/src/client"
 	s "HeDa/src/service/skeleton"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -12,21 +11,20 @@ import (
 
 //	 用户登陆帐号密码
 type User struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Key string `json:"key"`
 }
 
 func Login(rs http.ResponseWriter, rq *http.Request, p httprouter.Params) {
-	user := isNameAndPass(rq)
-	if user == nil {
-		fmt.Println("false")
+	var myClient c.MyClient
+	params, err := myClient.Login()
+	if err != "" {
 		s.Res(rs, nil, false)
-		return
 	}
-	var MyClient c.MyClient
-	//	登陆
-	MyClient.Login(user.Username, user.Password)
-	s.Res(rs, user, true)
+	s.Res(rs, params, true)
+}
+
+func Logon(rs http.ResponseWriter, rq *http.Request, p httprouter.Params) {
+
 }
 
 //	判断是否有帐号密码
@@ -37,11 +35,7 @@ func isNameAndPass(rq *http.Request) *User {
 		user = nil
 		return user
 	}
-	if user.Username == "" {
-		user = nil
-		return user
-	}
-	if user.Password == "" {
+	if user.Key == "" {
 		user = nil
 		return user
 	}

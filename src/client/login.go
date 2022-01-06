@@ -1,13 +1,10 @@
 package client
 
 import (
-	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"regexp"
-	"strings"
-	"unicode/utf8"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -22,109 +19,39 @@ type MyClient struct {
 }
 
 type LoginParams struct {
-	P_username        string
-	P_password        string
-	Username          string
-	Password          string
-	Randnumber        int8
-	IsPasswordPolicy  int8
-	Txt_mm_expression int8
-	Txt_mm_length     int8 // 密码长度
-	Txt_mm_userzh     int8 //  判断密码是否包含帐号
-	Hid_flag          int8 // 默认是1
-	SessionID         string
-	Deskey            string
-	Nowtime           string
+	SessionID string `json:"sessionid"`
+	Deskey    string `json:"deskey"`
+	Nowtime   string `json:"nowtime"`
 }
 
 //	用户登陆
-func (m MyClient) Login(username string, pwd string) {
-	params := getSDN(&m)
-	params.Username = base64Encode(username + ";;" + params.SessionID)
-	params.Password = pwd
-	params.IsPasswordPolicy = isPasswordPolicy(username, pwd)
-	params.Txt_mm_expression, params.Txt_mm_length, params.Txt_mm_userzh = checkpwd(username, pwd)
-	params.P_password = "_u"
-	params.P_username = "_p"
-}
-
-// 密码验证规则
-func checkpwd(username string, pwd string) (txt_mm_expression int8, txt_mm_length int8, txt_mm_userzh int8) {
-	txt_mm_expression = 0
-	txt_mm_length = int8(utf8.RuneCountInString(pwd))
-	txt_mm_userzh = '0'
-	for _, v := range pwd {
-		txt_mm_expression |= charType(v)
-	}
-	if l := strings.Contains(strings.ToLower(pwd), strings.ToLower(username)); l {
-		txt_mm_userzh = '1'
-		return txt_mm_expression, txt_mm_length, txt_mm_userzh
-	}
-	return txt_mm_expression, txt_mm_length, txt_mm_userzh
-}
-
-func charType(uni rune) int8 {
-	if uni >= 48 && uni <= 57 {
-		return 8
-	}
-	if uni >= 97 && uni <= 122 {
-		return 4
-	}
-	if uni >= 65 && uni <= 90 {
-		return 2
-	}
-	return 1
-}
-
-func isPasswordPolicy(username string, pwd string) int8 {
-	if username == "" || pwd == "" || username == pwd {
-		return '0'
-	}
-	pwdLen := len(pwd)
-	if pwdLen < 6 {
-		return '0'
-	}
-	return '1'
-}
-
-// base64加密
-func base64Encode(s string) string {
-	return base64.StdEncoding.EncodeToString([]byte(s))
-}
-
-//	对params进行拼接
-func paramsSplicing(l LoginParams) string {
-	return l.P_username + "=" + l.Username + "&" + l.P_password + "=" + l.Password + "&randnumber=" + string(rune(l.Randnumber)) +
-		"&isPasswordPolicy" + string(rune(l.IsPasswordPolicy)) + "&txt_mm_expression=" + string(rune(l.Txt_mm_expression)) +
-		"&txt_mm_length=" + string(rune(l.Txt_mm_userzh)) + "&txt_mm_userzh=" + string(rune(l.Txt_mm_userzh)) + "&hid_flag=" + string(rune(l.Hid_flag)) +
-		"&hidlag=1"
-}
-
-//	对拼接后的params进行编码
-func paramGetEncParams(p string) string {
-	return ""
+func (m MyClient) Login() (params LoginParams, err string) {
+	params = getSDN(&m)
+	fmt.Println(params.Deskey)
+	return params, ""
 }
 
 //	客户端获取henu的sessionid timenow deskey
-func getSDN(m *MyClient) *LoginParams {
-	var params LoginParams
+func getSDN(m *MyClient) (params LoginParams) {
 	req, err := http.NewRequest("GET", Urls["login"], nil)
-	if err != nil {
-		return nil
-	}
 	SetHeaders(req, MainHeaders)
 	req.Header.Set("Accept-Encoding", "")
+	if err != nil {
+		params = LoginParams{}
+		return params
+	}
 	res, err := m.Do(req)
 	if err != nil {
-		return nil
+		return LoginParams{}
 	}
 	defer res.Body.Close()
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
-		return nil
+		return LoginParams{}
 	}
 	params.SessionID, params.Deskey, params.Nowtime = getSDN_query(doc.Find("head script"), m, req)
-	return &params
+	fmt.Println(params.SessionID)
+	return params
 }
 
 // 客户端获取jsp页面中的sessionid timenow deskey封装
