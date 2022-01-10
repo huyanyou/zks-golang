@@ -31,10 +31,19 @@ func (m MyClient) Login() (params LoginParams, err string) {
 	return params, ""
 }
 
+func (m MyClient) Logon(param string, username string, sessionid string) {
+	// req, err := http.NewRequest("GET", Urls["logon"], strings.NewReader(param))
+	// if err != nil {
+	// 	return
+	// }
+	// req.Header.Add("")
+}
+
 //	客户端获取henu的sessionid timenow deskey
 func getSDN(m *MyClient) (params LoginParams) {
 	req, err := http.NewRequest("GET", Urls["login"], nil)
-	SetHeaders(req, MainHeaders)
+	// SetHeaders(req, MainHeaders)
+	req.Header.Set("Accept", MainHeaders["Accept"])
 	req.Header.Set("Accept-Encoding", "")
 	if err != nil {
 		params = LoginParams{}
@@ -44,6 +53,7 @@ func getSDN(m *MyClient) (params LoginParams) {
 	if err != nil {
 		return LoginParams{}
 	}
+	fmt.Println(res.Cookies())
 	defer res.Body.Close()
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {

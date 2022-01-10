@@ -4,6 +4,7 @@ import (
 	c "HeDa/src/client"
 	s "HeDa/src/service/skeleton"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -15,16 +16,21 @@ type User struct {
 }
 
 func Login(rs http.ResponseWriter, rq *http.Request, p httprouter.Params) {
+	fmt.Println("11")
 	var myClient c.MyClient
 	params, err := myClient.Login()
+	fmt.Println(rq.RemoteAddr)
 	if err != "" {
 		s.Res(rs, nil, false)
 	}
+	rs.Header().Set("Coonection", "keep-alive")
 	s.Res(rs, params, true)
 }
 
 func Logon(rs http.ResponseWriter, rq *http.Request, p httprouter.Params) {
+	fmt.Println(rq.RemoteAddr)
 
+	rs.Write([]byte("111"))
 }
 
 //	判断是否有帐号密码

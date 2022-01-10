@@ -2,6 +2,7 @@ package main
 
 import (
 	l "HeDa/src/service/login"
+	"HeDa/src/service/skeleton"
 	"net/http"
 	_ "net/http/pprof"
 	"time"
@@ -11,6 +12,7 @@ import (
 
 func main() {
 	r := httprouter.New()
+	r.AddBerforeHandle(skeleton.GlobalMiddle)
 	r.GET("/login", l.Login)
 	r.POST("/logon", l.Logon)
 	h := &http.Server{
