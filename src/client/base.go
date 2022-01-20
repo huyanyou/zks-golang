@@ -1,16 +1,17 @@
 package client
 
 const (
-	clientUrl = "http://xk.henu.edu.cn/"
-	serverUrl = "http://xk.henu.edu.cn:80/"
+	clientUrl = "https://xk.henu.edu.cn/"
+	serverUrl = "https://xk.henu.edu.cn:80/"
 )
 
 //	henu Server 接口
 var Urls map[string]string = map[string]string{
 	// 登陆接口
-	"login": clientUrl + "cas/login.action",
-	"logon": serverUrl + "cas/logon.action",
-	"jsp":   clientUrl + "custom/js/SetKingoEncypt.jsp",
+	"login":          clientUrl + "cas/login.action",
+	"logon":          serverUrl + "cas/logon.action",
+	"jsp":            clientUrl + "custom/js/SetKingoEncypt.jsp",
+	"getAchievement": clientUrl + "student/xscj.stuckcj_data.jsp",
 }
 
 // request Headers

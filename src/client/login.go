@@ -9,11 +9,6 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-type BaseLogin struct {
-	Username string
-	Password string
-}
-
 type MyClient struct {
 	http.Client
 }
@@ -27,7 +22,6 @@ type LoginParams struct {
 //	用户登陆
 func (m MyClient) Login() (params LoginParams, err string) {
 	params = getSDN(&m)
-	fmt.Println(params.Deskey)
 	return params, ""
 }
 
@@ -60,7 +54,6 @@ func getSDN(m *MyClient) (params LoginParams) {
 		return LoginParams{}
 	}
 	params.SessionID, params.Deskey, params.Nowtime = getSDN_query(doc.Find("head script"), m, req)
-	fmt.Println(params.SessionID)
 	return params
 }
 

@@ -25,7 +25,6 @@ func Res(rs http.ResponseWriter, data interface{}, isSuccess bool) {
 		jsonData, _ := json.Marshal(resStruct)
 		fmt.Println("true")
 		rs.Write(jsonData)
-		break
 	case false:
 		var resStruct ResStruct
 		rs.WriteHeader(404)
@@ -33,7 +32,6 @@ func Res(rs http.ResponseWriter, data interface{}, isSuccess bool) {
 		resStruct.Msg = "请求失败"
 		jsonData, _ := json.Marshal(resStruct)
 		rs.Write(jsonData)
-		break
 	default:
 		break
 	}
