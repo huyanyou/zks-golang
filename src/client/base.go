@@ -9,9 +9,10 @@ const (
 var Urls map[string]string = map[string]string{
 	// 登陆接口
 	"login":          clientUrl + "cas/login.action",
-	"logon":          serverUrl + "cas/logon.action",
+	"logon":          clientUrl + "cas/logon.action",
 	"jsp":            clientUrl + "custom/js/SetKingoEncypt.jsp",
-	"getAchievement": clientUrl + "student/xscj.stuckcj_data.jsp",
+	"getAchievement": clientUrl + "student/xscj.stuckcj_data.jsp",        //获取成绩接口
+	"getClass":       clientUrl + "wsxk/xkjg.ckdgxsxdkchj_data10319.jsp", //获取课表接口（列表）
 }
 
 // request Headers

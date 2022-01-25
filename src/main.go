@@ -15,6 +15,7 @@ func main() {
 	r.GET("/login", l.Login)
 	r.POST("/logon", l.Logon)
 	r.POST("/getAchieve", skeleton.MiddleAuth(l.GetAchieve))
+	r.POST("/getClass", skeleton.MiddleAuth(l.GetClass))
 	h := &http.Server{
 		Addr:           ":9090",
 		Handler:        r,

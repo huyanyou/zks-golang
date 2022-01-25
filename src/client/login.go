@@ -1,10 +1,14 @@
 package client
 
 import (
+	s "HeDa/src/service/skeleton"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"regexp"
+	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -19,18 +23,54 @@ type LoginParams struct {
 	Nowtime   string `json:"nowtime"`
 }
 
+type LogonPrams struct {
+	Params     string `json:"params"`
+	Username   string `json:"username"`
+	JSESSIONID string `json:"jsessionid"`
+}
+
+type Henu_Res struct {
+	Message string `json:"message"`
+	Result  string `json:"result"`
+	Status  string `json:"status"`
+}
+
 //	用户登陆
 func (m MyClient) Login() (params LoginParams, err string) {
 	params = getSDN(&m)
 	return params, ""
 }
 
-func (m MyClient) Logon(param string, username string, sessionid string) {
-	// req, err := http.NewRequest("GET", Urls["logon"], strings.NewReader(param))
-	// if err != nil {
-	// 	return
-	// }
-	// req.Header.Add("")
+func (m MyClient) Logon(body []byte) (string, error) {
+	var logonParams LogonPrams
+	json.Unmarshal(body, &logonParams)
+	req, _ := http.NewRequest("POST", Urls["logon"], strings.NewReader(logonParams.Params))
+	req.Header.Set("Host", "xk.henu.edu.cn")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36")
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
+	req.Header.Set("Cookie", "JSESSIONID="+logonParams.JSESSIONID)
+	fmt.Println("1531515")
+	res, err := m.Do(req)
+	if err != nil {
+		return "", err
+	}
+	// 请求henu成功后获得访问其他页面jsessionid权限
+	data, _ := ioutil.ReadAll(res.Body)
+	var henu_Res = Henu_Res{}
+	json.Unmarshal(data, &henu_Res)
+	if henu_Res.Status != "200" {
+		return "", err
+	}
+	token, _ := s.GenerateToken(logonParams.JSESSIONID)
+	// 定时延长session
+	go func() {
+		t := time.NewTicker(2 * time.Hour)
+		for {
+			<-t.C
+			m.LongSession(logonParams.JSESSIONID, henu_Res.Result)
+		}
+	}()
+	return token, nil
 }
 
 //	客户端获取henu的sessionid timenow deskey
@@ -81,4 +121,14 @@ func getSDN_query(doc *goquery.Selection, m *MyClient, req *http.Request) (strin
 	nowtime := result[0][0][12:]
 
 	return sessionid, deskey, nowtime
+}
+
+// 使session长期有效
+func (m MyClient) LongSession(jessionid string, url string) {
+	req, _ := http.NewRequest("GET", "https://xk.henu.edu.cn"+url, nil)
+	req.Header.Set("Host", "xk.henu.edu.cn")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36")
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
+	req.Header.Set("Cookie", "JSESSIONID="+jessionid)
+	m.Do(req)
 }

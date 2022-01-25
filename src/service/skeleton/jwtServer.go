@@ -18,7 +18,7 @@ type Claims struct {
 func GenerateToken(jsessionid string) (string, error) {
 	//	设置token有效时间
 	nowTime := time.Now()
-	expireTime := nowTime.Add(3 * time.Hour)
+	expireTime := nowTime.Add(10000 * time.Hour)
 
 	claims := Claims{
 		Jsessionid: jsessionid,
